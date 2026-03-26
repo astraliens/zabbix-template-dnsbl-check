@@ -1,0 +1,59 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 550e8400e29b41d4a716446655440000
+      name: Templates/Mail
+  templates:
+    - uuid: 9f1c3b0a2f7d4f76b9d84d1c8e3a7b11
+      template: 'Template DNSBL external'
+      name: 'Template DNSBL external'
+      description: |
+        DNSBL/RBL monitoring via external script and RBL list file.
+        
+        Files on Zabbix server/proxy:
+          - /usr/lib/zabbix/externalscripts/rbl_check.sh
+          - /usr/lib/zabbix/externalscripts/dnsblcheck_blacklist.txt
+        
+        Item prototype returns:
+          0 - not listed
+          1 - listed
+          2 - error (invalid IP, missing dig/host, etc.)
+      groups:
+        - name: Templates/Mail
+      discovery_rules:
+        - uuid: 3c2f1d4b8e6a4c1f9b2d7e5c0a9f3b27
+          name: 'RBL zones discovery'
+          type: EXTERNAL
+          key: 'rbl_check.sh[discovery]'
+          delay: 1h
+          item_prototypes:
+            - uuid: a4b7c9d23e6f4a1b8c2d5e7f9a0b3c48
+              name: 'DNSBL {#RBL}'
+              type: EXTERNAL
+              key: 'rbl_check.sh[check,{HOST.IP},{#RBL}]'
+              delay: 15m
+              history: 7d
+              valuemap:
+                name: 'DNSBL status'
+              tags:
+                - tag: dnsbl
+                  value: '{#RBL}'
+              trigger_prototypes:
+                - uuid: d1e2f3a4b5c64789a0b1c2d3e4f50617
+                  expression: 'last(/Template DNSBL external/rbl_check.sh[check,{HOST.IP},{#RBL}])=1'
+                  name: 'Host {HOST.NAME} is blacklisted in {#RBL}'
+                  priority: WARNING
+                  manual_close: 'YES'
+      tags:
+        - tag: application
+          value: dnsbl
+      valuemaps:
+        - uuid: 16ec79a3d0c24fa29d53e876d7368995
+          name: 'DNSBL status'
+          mappings:
+            - value: '0'
+              newvalue: 'Not listed'
+            - value: '1'
+              newvalue: Listed
+            - value: '2'
+              newvalue: Error

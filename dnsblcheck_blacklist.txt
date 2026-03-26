@@ -1,0 +1,16 @@
+b.barracudacentral.org
+bl.spamcop.net
+cbl.abuseat.org
+dnsbl-1.uceprotect.net
+dnsbl-2.uceprotect.net
+dnsbl-3.uceprotect.net
+dnsbl.dronebl.org
+drone.abuse.ch
+dyna.spamrats.com
+noptr.spamrats.com
+spam.spamrats.com
+zen.spamhaus.org
+bl.mailspike.net
+z.mailspike.net
+psbl.surriel.com
+bl.blocklist.de
